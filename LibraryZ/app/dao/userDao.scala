@@ -21,6 +21,7 @@ class UserDao {
 
     DB.withConnection { implicit c =>
 
+      // TODO: SQLのテンプレート化
       val user_id = SQL(
         """
           INSERT INTO user(
@@ -80,5 +81,15 @@ class UserDao {
       ).on('id -> this.id).executeUpdate()
 
     }
+  }
+
+  def findByNFCId(nfc_id: Int) = {
+    //    SQL(
+    //      """
+    //        SELECT * FROM user WHERE nfc_id = {nfc_id} AND "deleted_at" is null
+    //      """
+    //    ).on('nfc_id -> nfc_id).map(row =>
+    //      row[Long]("")
+    //    )
   }
 }
