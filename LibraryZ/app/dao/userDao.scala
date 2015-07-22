@@ -11,32 +11,32 @@ class UserDao {
 
   var id: Option[Long] = null
   var name = ""
-  var nfc_id = ""
-  var cw_user_id = ""
-  var image = ""
+  var nfc_device_id = ""
+  var chatwork_api_token = ""
+  var image: Option[String] = null
   var created_at = null
   var updated_at = null
 
   def insert() = {
 
+    // TODO: トランザクション対応
     DB.withConnection { implicit c =>
 
       // TODO: SQLのテンプレート化
       val user_id = SQL(
         """
           INSERT INTO user(
-            name, nfc_id, cw_user_id, image,
+            name, nfc_device_id, chatwork_api_token, image,
             created_at, updated_at
           ) VALUES(
-            {name}, {nfc_id}, {cw_user_id}, {image},
+            {name}, {nfc_device_id}, {chatwork_api_token}, {image},
             NOW(), NOW()
           )
-
         """
       ).on(
           'name -> this.name,
-          'nfc_id -> this.nfc_id,
-          'cw_user_id -> this.cw_user_id,
+          'nfc_device_id -> this.nfc_device_id,
+          'chatwork_api_token -> this.chatwork_api_token,
           'image -> this.image
         ).executeInsert()
 
@@ -54,8 +54,8 @@ class UserDao {
         """
           UPDATE user SET
             name = {name},
-            nfc_id = {nfc_id},
-            cw_user_id = {cw_user_id},
+            nfc_device_id = {nfc_device_id},
+            chatwork_api_token = {chatwork_api_token},
             image = {image},
             updated_at = NOW()
           WHERE id = {id}
@@ -63,8 +63,8 @@ class UserDao {
       ).on(
           'id -> this.id,
           'name -> this.name,
-          'nfc_id -> this.nfc_id,
-          'cw_user_id -> this.cw_user_id,
+          'nfc_device_id -> this.nfc_device_id,
+          'chatwork_api_token -> this.chatwork_api_token,
           'image -> this.image
         ).executeUpdate()
     }
@@ -83,13 +83,50 @@ class UserDao {
     }
   }
 
-  def findByNFCId(nfc_id: Int) = {
-    //    SQL(
-    //      """
-    //        SELECT * FROM user WHERE nfc_id = {nfc_id} AND "deleted_at" is null
-    //      """
-    //    ).on('nfc_id -> nfc_id).map(row =>
-    //      row[Long]("")
-    //    )
+  def findById(id: Int) = {
+
+    val selectQuery = SQL("SELECT * FROM user WHERE id = {id} AND deleted_at is null;").on('id -> id)
+    // TODO: 冗長なマッピングを関数化切り出し
+    DB.withConnection { implicit c =>
+      selectQuery().map { row =>
+        this.id = row[Option[Long]]("id")
+        this.name = row[String]("name")
+        this.nfc_device_id = row[String]("nfc_device_id")
+        this.chatwork_api_token = row[String]("chatwork_api_token")
+        this.image = row[Option[String]]("image")
+      }
+    }
+    // TODO: 該当するidがなかった場合の処理
+  }
+
+  /** nfc_device_idが最初に一致するユーザー取得
+    *
+    * @param nfc_device_id
+    */
+  def findByNFCId(nfc_device_id: String) = {
+
+    val selectQuery = SQL("SELECT * FROM user WHERE nfc_device_id = {nfc_device_id} AND deleted_at is null;").on('nfc_device_id -> nfc_device_id)
+    DB.withConnection { implicit c =>
+      selectQuery().map { row =>
+        this.id = row[Option[Long]]("id")
+        this.name = row[String]("name")
+        this.nfc_device_id = row[String]("nfc_device_id")
+        this.chatwork_api_token = row[String]("chatwork_api_token")
+        this.image = row[Option[String]]("image")
+      }
+    }
+    // TODO: 該当するnfc_device_idがなかった場合の処理
+  }
+
+
+  override def toString() = {
+    s"""
+      user
+      id: ${this.id}
+      name: ${this.name}
+      nfc_device_id: ${this.nfc_device_id}
+      chatwork_api_token: ${this.chatwork_api_token}
+      image: ${this.image}
+    """
   }
 }
