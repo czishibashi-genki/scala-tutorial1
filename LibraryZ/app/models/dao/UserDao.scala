@@ -10,14 +10,6 @@ import play.api.db.DB
  */
 object UserDao {
 
-  //  var id: Option[Long] = null
-  //  var name = ""
-  //  var nfc_device_id = ""
-  //  var chatwork_api_token = ""
-  //  var image: Option[String] = null
-  //  var created_at = null
-  //  var updated_at = null
-
   def insert(user: User): User = {
 
     // TODO: トランザクション対応
@@ -129,16 +121,4 @@ object UserDao {
     }
     // TODO: 該当するnfc_device_idがなかった場合の処理
   }
-
-
-  //  override def toString() = {
-  //    s"""
-  //      user
-  //      id: ${this.id}
-  //      name: ${this.name}
-  //      nfc_device_id: ${this.nfc_device_id}
-  //      chatwork_api_token: ${this.chatwork_api_token}
-  //      image: ${this.image}
-  //    """
-  //  }
 }

@@ -10,15 +10,6 @@ import play.api.db.DB
  */
 object BookDao {
 
-  //  var id: Option[Long] = null
-  //  var name: String = ""
-  //  var isbn: String = ""
-  //  var publisher: String = ""
-  //  var category: Option[String] = null
-  //  var category_id: Option[Int] = null
-  //  var place: String = ""
-  //  var image: Option[String] = null
-
   def insert(book: Book): Book = {
 
     // TODO: トランザクション対応
@@ -120,38 +111,56 @@ object BookDao {
     // TODO: 該当するidがなかった場合の処理
   }
 
-  /** nfc_device_idが最初に一致するユーザー取得
-    *
-    * @param nfc_device_id
-    */
-  //  def findByNFCId(nfc_device_id: String) = {
-  //
-  //    val selectQuery = SQL("SELECT * FROM user WHERE nfc_device_id = {nfc_device_id} AND deleted_at is null;").on('nfc_device_id -> nfc_device_id)
-  //    DB.withConnection { implicit c =>
-  //      selectQuery().map { row =>
-  //        this.id = row[Option[Long]]("id")
-  //        this.name = row[String]("name")
-  //        this.publisher = row[String]("publisher")
-  //        this.category = row[Option[String]]("category")
-  //        this.category_id = row[Option[Int]]("category_id")
-  //        this.place = row[String]("place")
-  //        this.image = row[Option[String]]("image")
-  //      }
-  //    }
-  //    // TODO: 該当するnfc_device_idがなかった場合の処理
-  //  }
+  // 本の名前で検索
+  // TODO: 文字列の埋め込みができない
+  def findsByName(name: String): List[Book] = {
 
+    val selectQuery = SQL("SELECT * FROM book WHERE name LIKE '%{name}%' AND deleted_at is null;").on('name -> name)
 
-  //  override def toString() = {
-  //    s"""
-  //      book
-  //      id: ${this.id}
-  //      name: ${this.name}
-  //      publisher: ${this.publisher}
-  //      category: ${this.category}
-  //      category_id: ${this.category_id}
-  //      place: ${this.place}
-  //      image: ${this.image}
-  //    """
-  //  }
+    var books = List[Book]()
+    // TODO: 冗長なマッピングを関数化切り出し
+    val result = DB.withConnection { implicit c =>
+
+      selectQuery().map { row =>
+        var book = new Book()
+        book.id = row[Option[Long]]("id")
+        book.name = row[String]("name")
+        book.publisher = row[String]("publisher")
+        book.category = row[Option[String]]("category")
+        book.category_id = row[Option[Int]]("category_id")
+        book.place = row[String]("place")
+        book.image = row[Option[String]]("image")
+        books = book :: books
+      }.toList
+
+    }
+
+    return books
+  }
+
+  // 本の名前で検索
+  def findsByIsbn(isbn: String): List[Book] = {
+
+    val selectQuery = SQL("SELECT * FROM book WHERE isbn = {isbn} AND deleted_at is null;").on('isbn -> isbn)
+
+    var books = List[Book]()
+    // TODO: 冗長なマッピングを関数化切り出し
+    val result = DB.withConnection { implicit c =>
+
+      selectQuery().map { row =>
+        var book = new Book()
+        book.id = row[Option[Long]]("id")
+        book.name = row[String]("name")
+        book.publisher = row[String]("publisher")
+        book.category = row[Option[String]]("category")
+        book.category_id = row[Option[Int]]("category_id")
+        book.place = row[String]("place")
+        book.image = row[Option[String]]("image")
+        books = book :: books
+      }.toList
+
+    }
+
+    return books
+  }
 }
