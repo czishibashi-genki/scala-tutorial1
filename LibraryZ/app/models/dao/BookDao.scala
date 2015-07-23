@@ -112,10 +112,9 @@ object BookDao {
   }
 
   // 本の名前で検索
-  // TODO: 文字列の埋め込みができない
   def findsByName(name: String): List[Book] = {
 
-    val selectQuery = SQL("SELECT * FROM book WHERE name LIKE '%{name}%' AND deleted_at is null;").on('name -> name)
+    val selectQuery = SQL(s"SELECT * FROM book WHERE name LIKE '%$name%' AND deleted_at is null;")
 
     var books = List[Book]()
     // TODO: 冗長なマッピングを関数化切り出し
